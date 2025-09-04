@@ -13,7 +13,7 @@ app.use(cors({
 
 app.use(express.json());
 
-const GOOGLE_API = "https://script.google.com/macros/s/AKfycbyZ4ZC6Jsk1rQMc_IdqkCgDsXHtJrMtEWw3ygLbmqmNa0klTeeF4c8xiPcXbAd3SBC8/exec";
+const GOOGLE_API = "https://script.google.com/macros/s/AKfycbxxToWj8XjXKr5rOgd3ey-lFRB_p1TUIkU2NREyQTJQSTm6BAasAHkadeNQuJ7GYY5y/exec";
 
 app.get("/api/employees", async (req, res) => {
   try {
