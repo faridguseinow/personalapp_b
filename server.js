@@ -2,17 +2,19 @@ import express from "express";
 import fetch from "node-fetch";
 
 const app = express();
-app.use(express.json());
+const PORT = process.env.PORT || 5000;
 
-const GOOGLE_API = "https://script.google.com/macros/s/AKfycbyZ4ZC6Jsk1rQMc_IdqkCgDsXHtJrMtEWw3ygLbmqmNa0klTeeF4c8xiPcXbAd3SBC8/exec";
+// включаем CORS
+app.use(cors());
 
-// Получить сотрудников
+// твой Google Apps Script API
+const GOOGLE_API = "https://script.google.com/macros/s/AKfycbx6xSTL-86GeA9g5Pjuau4eifmqZVo5djr.../exec";
+
+// роут для сотрудников
 app.get("/api/employees", async (req, res) => {
   try {
-    const resp = await fetch(GOOGLE_API, {
-      headers: { "Content-Type": "application/json" }
-    });
-    const data = await resp.json();
+    const response = await fetch(GOOGLE_API);
+    const data = await response.json();
     res.json(data);
   } catch (err) {
     console.error("Ошибка сервера:", err);
@@ -20,25 +22,6 @@ app.get("/api/employees", async (req, res) => {
   }
 });
 
-// Обновить / добавить сотрудника
-app.post("/api/employees", async (req, res) => {
-  try {
-    const resp = await fetch(GOOGLE_API, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(req.body),
-    });
-    const data = await resp.json();
-    res.json(data);
-  } catch (err) {
-    console.error("Ошибка сервера:", err);
-    res.status(500).json({ error: "Не удалось обновить данные" });
-  }
+app.listen(PORT, () => {
+  console.log(`✅ Proxy server running on port ${PORT}`);
 });
-
-app.get("/", (req, res) => {
-  res.send("✅ PersonalApp Backend работает! Используй /api/employees для данных.");
-});
-
-const PORT = process.env.PORT || 10000;
-app.listen(PORT, () => console.log(`✅ Proxy server running on ${PORT}`));
