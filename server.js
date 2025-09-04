@@ -1,20 +1,25 @@
 import express from "express";
 import fetch from "node-fetch";
+import cors from "cors";
 
 const app = express();
-const PORT = process.env.PORT || 5000;
 
-// включаем CORS
-app.use(cors());
+// Разрешаем все домены (или конкретно localhost:5173 + твой прод-домен)
+app.use(cors({
+  origin: ["http://localhost:5173", "https://gfcc-personal.netlify.app"], // свой домен потом добавишь
+  methods: ["GET", "POST"],
+  allowedHeaders: ["Content-Type"]
+}));
 
-// твой Google Apps Script API
-const GOOGLE_API = "https://script.google.com/macros/s/AKfycbx6xSTL-86GeA9g5Pjuau4eifmqZVo5djr.../exec";
+app.use(express.json());
 
-// роут для сотрудников
+const GOOGLE_API = "https://script.google.com/macros/s/AKfycbyZ4ZC6Jsk1rQMc_IdqkCgDsXHtJrMtEWw3ygLbmqmNa0klTeeF4c8xiPcXbAd3SBC8/exec";
+
 app.get("/api/employees", async (req, res) => {
   try {
-    const response = await fetch(GOOGLE_API);
-    const data = await response.json();
+    const resp = await fetch(GOOGLE_API);
+    const text = await resp.text();
+    const data = JSON.parse(text);
     res.json(data);
   } catch (err) {
     console.error("Ошибка сервера:", err);
@@ -22,6 +27,25 @@ app.get("/api/employees", async (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`✅ Proxy server running on port ${PORT}`);
+app.post("/api/employees", async (req, res) => {
+  try {
+    const resp = await fetch(GOOGLE_API, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(req.body),
+    });
+    const text = await resp.text();
+    const data = JSON.parse(text);
+    res.json(data);
+  } catch (err) {
+    console.error("Ошибка сервера:", err);
+    res.status(500).json({ error: "Не удалось обновить данные" });
+  }
 });
+
+app.get("/", (req, res) => {
+  res.send("✅ PersonalApp Backend работает! Используй /api/employees для данных.");
+});
+
+const PORT = process.env.PORT || 10000;
+app.listen(PORT, () => console.log(`✅ Proxy server running on ${PORT}`));
